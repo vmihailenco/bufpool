@@ -146,5 +146,5 @@ func prevIndex(n int) int {
 }
 
 func indexSize(idx int) int {
-	return minSize << idx
+	return minSize << uint(idx)
 }
