@@ -36,9 +36,6 @@ const (
 	opRead      readOp = -1 // Any other read operation.
 	opInvalid   readOp = 0  // Non-read operation.
 	opReadRune1 readOp = 1  // Read rune of size 1.
-	opReadRune2 readOp = 2  // Read rune of size 2.
-	opReadRune3 readOp = 3  // Read rune of size 3.
-	opReadRune4 readOp = 4  // Read rune of size 4.
 )
 
 var errNegativeRead = errors.New("bytes.Buffer: reader returned negative count from Read")
@@ -189,7 +186,7 @@ func (b *Buffer) WriteString(s string) (n int, err error) {
 // Buffer.ReadFrom. As long as the Buffer has at least MinRead bytes beyond
 // what is required to hold the contents of r, ReadFrom will not grow the
 // underlying buffer.
-const MinRead = 512
+const minRead = 512
 
 // ReadFrom reads data from r until EOF and appends it to the buffer, growing
 // the buffer as needed. The return value n is the number of bytes read. Any
@@ -198,7 +195,7 @@ const MinRead = 512
 func (b *Buffer) ReadFrom(r io.Reader) (n int64, err error) {
 	b.lastRead = opInvalid
 	for {
-		i := b.grow(MinRead)
+		i := b.grow(minRead)
 		b.buf = b.buf[:i]
 		m, e := r.Read(b.buf[i:cap(b.buf)])
 		if m < 0 {
@@ -275,7 +272,7 @@ func (b *Buffer) WriteByte(c byte) error {
 // if it becomes too large, WriteRune will panic with ErrTooLarge.
 func (b *Buffer) WriteRune(r rune) (n int, err error) {
 	if r < utf8.RuneSelf {
-		b.WriteByte(byte(r))
+		_ = b.WriteByte(byte(r))
 		return 1, nil
 	}
 	b.lastRead = opInvalid
