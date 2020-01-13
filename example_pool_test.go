@@ -22,8 +22,8 @@ func ExamplePool() {
 
 	buf := jsonPool.Get()
 
-	fmt.Println("len", buf.Len())
-	// Output: len 1024
+	fmt.Println("len", buf.Cap())
+	// Output: len 1128
 
 	jsonPool.Put(buf)
 }

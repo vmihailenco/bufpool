@@ -7,7 +7,7 @@ bufpool is an implementation of a pool of byte buffers with anti-memory-waste pr
 - https://github.com/libp2p/go-buffer-pool
 - https://github.com/valyala/bytebufferpool
 
-bufpool consists of global pool of buffers that have a capacity of a power of 2 starting from 64 bytes to 32 megabytes. It also provides individual pools that maintain usage stats to provide buffers of the size that satisfies 90% of the calls and discard 5% of the largest buffers (to make occuppied RAM immediately available to Go). Global pool is used to reuse buffers between different parts of the app.
+bufpool consists of global pool of buffers that have a capacity of a power of 2 starting from 64 bytes to 32 megabytes. It also provides individual pools that maintain usage stats to provide buffers of the size that satisfies 95% of the calls and discard 5% of the largest buffers (to make occuppied RAM immediately available to Go). Global pool is used to reuse buffers between different parts of the app.
 
 # Installation
 
@@ -69,7 +69,7 @@ You can also change default pool thresholds:
 
 ``` go
 var jsonPool = bufpool.Pool{
-	ServePctile:   0.9,  // serve p90 buffers
-	DiscardPctile: 0.95, // discard > p95 buffers
+	ServePctile:   0.95, // serve p95 buffers
+	DiscardPctile: 0.99, // discard > p99 buffers
 }
 ```

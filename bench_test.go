@@ -37,7 +37,6 @@ func BenchmarkBufPool(b *testing.B) {
 		for pb.Next() {
 			buf := bufPool.Get()
 
-			buf.Reset()
 			if err := json.NewEncoder(buf).Encode(b); err != nil {
 				b.Fatal(err)
 			}
