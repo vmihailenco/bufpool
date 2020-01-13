@@ -41,12 +41,12 @@ func (p *Pool) getServeSize() int {
 		return int(size)
 	}
 
-	// Use first size until first calibration.
 	for i := 0; i < len(p.calls); i++ {
-		size = atomic.LoadUint32(&p.calls[i])
-		if size > 0 {
-			atomic.CompareAndSwapUint32(&p.serveSize, 0, size)
-			return int(size)
+		calls := atomic.LoadUint32(&p.calls[i])
+		if calls > 10 {
+			size := indexSize(i)
+			atomic.CompareAndSwapUint32(&p.serveSize, 0, uint32(size))
+			return size
 		}
 	}
 
