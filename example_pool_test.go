@@ -22,8 +22,8 @@ func ExamplePool() {
 
 	buf := jsonPool.Get()
 
-	fmt.Println("len", buf.Cap())
-	// Output: len 1128
+	fmt.Println("len", buf.Cap() >= 1000 && buf.Cap() <= 1200)
+	// Output: len true
 
 	jsonPool.Put(buf)
 }
