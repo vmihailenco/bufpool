@@ -1,6 +1,6 @@
 # bufpool
 
-[![Build Status](https://travis-ci.org/vmihailenco/bufpool.svg?branch=v2)](https://travis-ci.org/vmihailenco/bufpool)
+[![Build Status](https://travis-ci.org/vmihailenco/bufpool.svg)](https://travis-ci.org/vmihailenco/bufpool)
 [![GoDoc](https://godoc.org/github.com/vmihailenco/bufpool?status.svg)](https://godoc.org/github.com/vmihailenco/bufpool)
 
 bufpool is an implementation of a pool of byte buffers with anti-memory-waste protection. It is based on the code and ideas from these 2 projects:
