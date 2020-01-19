@@ -154,7 +154,7 @@ func index(n int) int {
 
 func prevIndex(n int) int {
 	next := index(n)
-	if next == 0 || n == indexSize(n) {
+	if next == 0 || n == indexSize(next) {
 		return next
 	}
 	return next - 1

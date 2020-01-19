@@ -1,7 +1,6 @@
 package bufpool_test
 
 import (
-	"bytes"
 	"encoding/json"
 	"sync"
 	"testing"
@@ -9,21 +8,41 @@ import (
 	"github.com/vmihailenco/bufpool"
 )
 
+func BenchmarkNoPool(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			var buf bufpool.Buffer
+			benchOne(b, &buf)
+		}
+	})
+}
+
+type Record struct {
+	A string
+	B int
+}
+
+var data = make([]Record, 1000)
+
+func benchOne(b *testing.B, buf *bufpool.Buffer) {
+	if err := json.NewEncoder(buf).Encode(data); err != nil {
+		b.Fatal(err)
+	}
+}
+
 var syncPool = sync.Pool{
 	New: func() interface{} {
-		return new(bytes.Buffer)
+		return new(bufpool.Buffer)
 	},
 }
 
 func BenchmarkSyncPool(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			buf := syncPool.Get().(*bytes.Buffer)
+			buf := syncPool.Get().(*bufpool.Buffer)
 			buf.Reset()
 
-			if err := json.NewEncoder(buf).Encode(b); err != nil {
-				b.Fatal(err)
-			}
+			benchOne(b, buf)
 
 			syncPool.Put(buf)
 		}
@@ -37,9 +56,7 @@ func BenchmarkBufPool(b *testing.B) {
 		for pb.Next() {
 			buf := bufPool.Get()
 
-			if err := json.NewEncoder(buf).Encode(b); err != nil {
-				b.Fatal(err)
-			}
+			benchOne(b, buf)
 
 			bufPool.Put(buf)
 		}
