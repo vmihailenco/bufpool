@@ -21,9 +21,8 @@ const (
 
 // Pool represents byte buffer pool.
 //
-// Distinct pools may be used for distinct types of byte buffers.
-// Properly determined byte buffer types with their own pools may help reducing
-// memory waste.
+// Different pools should be used for different usage patterns to achieve better
+// performance and lower memory usage.
 type Pool struct {
 	calls       [steps]uint32
 	calibrating uint32
@@ -53,26 +52,37 @@ func (p *Pool) getServeSize() int {
 	return defaultSize
 }
 
+// Get returns an empty buffer from the pool. Returned buffer capacity
+// is determined by accumulated usage stats and changes over time.
+//
+// The buffer may be returned to the pool using Put or retained for further
+// usage. In latter case buffer length must be updated using UpdateLen.
 func (p *Pool) Get() *Buffer {
 	buf := Get(p.getServeSize())
 	buf.Reset()
 	return buf
 }
 
+// Put returns buffer to the pool.
 func (p *Pool) Put(buf *Buffer) {
 	length := buf.Len()
 	if length == 0 {
 		length = buf.Cap()
 	}
 
-	idx := index(length)
-	if atomic.AddUint32(&p.calls[idx], 1) > calibrateCallsThreshold {
-		p.calibrate()
-	}
+	p.UpdateLen(length)
 
 	discardSize := int(atomic.LoadUint32(&p.discardSize))
 	if discardSize == 0 || buf.Cap() <= discardSize {
 		Put(buf)
+	}
+}
+
+// UpdateLen updates stats about buffer length.
+func (p *Pool) UpdateLen(bufLen int) {
+	idx := index(bufLen)
+	if atomic.AddUint32(&p.calls[idx], 1) > calibrateCallsThreshold {
+		p.calibrate()
 	}
 }
 
