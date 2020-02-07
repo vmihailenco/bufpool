@@ -1,10 +1,10 @@
 package bufpool
 
 func (b *Buffer) reset(pos int) {
-	b.ResetBuf(b.buf[:pos])
+	b.ResetBytes(b.buf[:pos])
 }
 
-func (b *Buffer) ResetBuf(buf []byte) {
+func (b *Buffer) ResetBytes(buf []byte) {
 	b.buf = buf
 	b.off = 0
 	b.lastRead = opInvalid

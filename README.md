@@ -62,7 +62,7 @@ bb := buf.Bytes()[:0]
 
 bb = append(bb, ...)
 
-buf.ResetBuf(bb)
+buf.ResetBytes(bb)
 ```
 
 You can also change default pool thresholds:
