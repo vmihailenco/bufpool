@@ -14,7 +14,6 @@ const (
 	maxPoolSize = maxSize << 1                  // 64 mb
 
 	defaultServePctile      = 0.95
-	defaultDiscardPctile    = 0.95
 	calibrateCallsThreshold = 42000
 	defaultSize             = 4096
 )
@@ -27,11 +26,8 @@ type Pool struct {
 	calls       [steps]uint32
 	calibrating uint32
 
-	ServePctile   float64 // default is 0.95
-	DiscardPctile float64 // default is 0.95
-
+	ServePctile float64 // default is 0.95
 	serveSize   uint32
-	discardSize uint32
 }
 
 func (p *Pool) getServeSize() int {
@@ -72,10 +68,8 @@ func (p *Pool) Put(buf *Buffer) {
 
 	p.UpdateLen(length)
 
-	discardSize := int(atomic.LoadUint32(&p.discardSize))
-	if discardSize == 0 || buf.Cap() <= discardSize {
-		Put(buf)
-	}
+	// Always put buf to the pool.
+	Put(buf)
 }
 
 // UpdateLen updates stats about buffer length.
@@ -101,10 +95,7 @@ func (p *Pool) calibrate() {
 	}
 
 	serveSum := uint64(float64(callSum) * p.getServePctile())
-	discardSum := uint64(float64(callSum) * p.getDiscardPctile())
-
 	var serveSize int
-	var discardSize int
 
 	callSum = 0
 	for i, numCall := range &calls {
@@ -112,18 +103,11 @@ func (p *Pool) calibrate() {
 
 		if serveSize == 0 && callSum >= serveSum {
 			serveSize = indexSize(i)
-		} else if callSum >= discardSum {
-			discardSize = indexSize(i)
 			break
 		}
 	}
 
-	if discardSize == 0 {
-		discardSize <<= 1
-	}
-
 	atomic.StoreUint32(&p.serveSize, uint32(serveSize))
-	atomic.StoreUint32(&p.discardSize, uint32(discardSize))
 	atomic.StoreUint32(&p.calibrating, 0)
 }
 
@@ -132,13 +116,6 @@ func (p *Pool) getServePctile() float64 {
 		return p.ServePctile
 	}
 	return defaultServePctile
-}
-
-func (p *Pool) getDiscardPctile() float64 {
-	if p.DiscardPctile > 0 {
-		return p.DiscardPctile
-	}
-	return defaultDiscardPctile
 }
 
 func index(n int) int {
