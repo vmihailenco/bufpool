@@ -40,7 +40,7 @@ func BenchmarkSyncPool(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			buf := syncPool.Get().(*bufpool.Buffer)
-			buf.Reset()
+			buf.Reset(nil)
 
 			benchOne(b, buf)
 

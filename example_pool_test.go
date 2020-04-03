@@ -14,7 +14,7 @@ func ExamplePool() {
 	for i := 0; i < 100000; i++ {
 		buf := jsonPool.Get()
 
-		buf.Reset()
+		buf.Reset(nil)
 		_, _ = buf.Write(make([]byte, avgPayloadSize))
 
 		jsonPool.Put(buf)

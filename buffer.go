@@ -77,7 +77,7 @@ func (b *Buffer) Cap() int { return cap(b.buf) }
 // It panics if n is negative or greater than the length of the buffer.
 func (b *Buffer) Truncate(n int) {
 	if n == 0 {
-		b.Reset()
+		b.Reset(nil)
 		return
 	}
 	b.lastRead = opInvalid
@@ -85,15 +85,6 @@ func (b *Buffer) Truncate(n int) {
 		panic("bytes.Buffer: truncation out of range")
 	}
 	b.buf = b.buf[:b.off+n]
-}
-
-// Reset resets the buffer to be empty,
-// but it retains the underlying storage for use by future writes.
-// Reset is the same as Truncate(0).
-func (b *Buffer) Reset() {
-	b.buf = b.buf[:0]
-	b.off = 0
-	b.lastRead = opInvalid
 }
 
 // tryGrowByReslice is a inlineable version of grow for the fast-case where the
@@ -114,7 +105,7 @@ func (b *Buffer) grow(n int) int {
 	m := b.Len()
 	// If buffer is empty, reset to recover space.
 	if m == 0 && b.off != 0 {
-		b.Reset()
+		b.Reset(nil)
 	}
 	// Try to grow by means of a reslice.
 	if i, ok := b.tryGrowByReslice(n); ok {
@@ -248,7 +239,7 @@ func (b *Buffer) WriteTo(w io.Writer) (n int64, err error) {
 		}
 	}
 	// Buffer is now empty; reset.
-	b.Reset()
+	b.Reset(nil)
 	return n, nil
 }
 
@@ -293,7 +284,7 @@ func (b *Buffer) Read(p []byte) (n int, err error) {
 	b.lastRead = opInvalid
 	if b.empty() {
 		// Buffer is empty, reset to recover space.
-		b.Reset()
+		b.Reset(nil)
 		if len(p) == 0 {
 			return 0, nil
 		}
@@ -330,7 +321,7 @@ func (b *Buffer) Next(n int) []byte {
 func (b *Buffer) ReadByte() (byte, error) {
 	if b.empty() {
 		// Buffer is empty, reset to recover space.
-		b.Reset()
+		b.Reset(nil)
 		return 0, io.EOF
 	}
 	c := b.buf[b.off]
@@ -347,7 +338,7 @@ func (b *Buffer) ReadByte() (byte, error) {
 func (b *Buffer) ReadRune() (r rune, size int, err error) {
 	if b.empty() {
 		// Buffer is empty, reset to recover space.
-		b.Reset()
+		b.Reset(nil)
 		return 0, 0, io.EOF
 	}
 	c := b.buf[b.off]
