@@ -22,6 +22,10 @@ func Put(buf *Buffer) {
 	thePool.Put(buf)
 }
 
+func PutBytes(buf *Buffer, data []byte) {
+	thePool.PutBytes(buf, data)
+}
+
 type bufPool struct {
 	pools [steps]sync.Pool
 }
@@ -38,7 +42,7 @@ func (p *bufPool) Get(length int) *Buffer {
 		if length > buf.Cap() {
 			log.Println(idx, buf.Len(), buf.Cap(), buf.String())
 		}
-		buf.Reset(buf.buf[:length])
+		buf.buf = buf.buf[:length]
 		return buf
 	}
 
@@ -55,6 +59,11 @@ func (p *bufPool) Put(buf *Buffer) {
 	idx := prevIndex(length)
 	lock(buf)
 	p.pools[idx].Put(buf)
+}
+
+func (p *bufPool) PutBytes(buf *Buffer, data []byte) {
+	buf.buf = data
+	p.Put(buf)
 }
 
 func lock(buf *Buffer) {

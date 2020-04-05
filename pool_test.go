@@ -103,8 +103,7 @@ func testGetPut(t *testing.T, p *Pool, n int) {
 	bb := buf.Bytes()
 	bb = allocNBytes(bb, n)
 
-	buf.Reset(bb)
-	p.Put(buf)
+	p.PutBytes(buf, bb)
 }
 
 func allocNBytes(dst []byte, n int) []byte {

@@ -5,15 +5,11 @@ import "bytes"
 // Reset resets the buffer to be empty,
 // but it retains the underlying storage for use by future writes.
 // Reset is the same as Truncate(0).
-func (b *Buffer) Reset(buf []byte) {
+func (b *Buffer) Reset() {
 	if b.off > cap(b.buf) {
 		panic("Buffer is used after Put")
 	}
-	if buf != nil {
-		b.buf = buf
-	} else {
-		b.buf = b.buf[:0]
-	}
+	b.buf = b.buf[:0]
 	b.off = 0
 	b.lastRead = opInvalid
 }
@@ -28,7 +24,7 @@ func (b *Buffer) grow(n int) int {
 	m := b.Len()
 	// If buffer is empty, reset to recover space.
 	if m == 0 && b.off != 0 {
-		b.Reset(nil)
+		b.Reset()
 	}
 	// Try to grow by means of a reslice.
 	if i, ok := b.tryGrowByReslice(n); ok {

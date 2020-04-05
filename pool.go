@@ -55,7 +55,7 @@ func (p *Pool) getServeSize() int {
 // usage. In latter case buffer length must be updated using UpdateLen.
 func (p *Pool) Get() *Buffer {
 	buf := Get(p.getServeSize())
-	buf.Reset(nil)
+	buf.Reset()
 	return buf
 }
 
@@ -76,6 +76,11 @@ func (p *Pool) Put(buf *Buffer) {
 
 	// Always put buf to the pool.
 	Put(buf)
+}
+
+func (p *Pool) PutBytes(buf *Buffer, data []byte) {
+	buf.buf = data
+	p.Put(buf)
 }
 
 // UpdateLen updates stats about buffer length.
