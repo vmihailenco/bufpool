@@ -6,6 +6,9 @@ import "bytes"
 // but it retains the underlying storage for use by future writes.
 // Reset is the same as Truncate(0).
 func (b *Buffer) Reset(buf []byte) {
+	if b.off > cap(b.buf) {
+		panic("Buffer is used after Put")
+	}
 	if buf != nil {
 		b.buf = buf
 	} else {
@@ -15,14 +18,13 @@ func (b *Buffer) Reset(buf []byte) {
 	b.lastRead = opInvalid
 }
 
-func (b *Buffer) reset(pos int) {
-	b.Reset(b.buf[:pos])
-}
-
 // grow grows the buffer to guarantee space for n more bytes.
 // It returns the index where bytes should be written.
 // If the buffer can't grow it will panic with ErrTooLarge.
 func (b *Buffer) grow(n int) int {
+	if b.off > cap(b.buf) {
+		panic("Buffer is used after Put")
+	}
 	m := b.Len()
 	// If buffer is empty, reset to recover space.
 	if m == 0 && b.off != 0 {
@@ -33,7 +35,7 @@ func (b *Buffer) grow(n int) int {
 		return i
 	}
 	if b.buf == nil && n <= smallBufferSize {
-		b.buf = Get(n).buf
+		b.buf = make([]byte, n, smallBufferSize)
 		return 0
 	}
 	c := cap(b.buf)

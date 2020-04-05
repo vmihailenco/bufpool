@@ -2,6 +2,7 @@ package bufpool_test
 
 import (
 	"encoding/json"
+	"math/rand"
 	"sync"
 	"testing"
 
@@ -59,6 +60,23 @@ func BenchmarkBufPool(b *testing.B) {
 			benchOne(b, buf)
 
 			bufPool.Put(buf)
+		}
+	})
+}
+
+func BenchmarkRandPool(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			n := rand.Intn(1 << 10)
+
+			bufpool.Put(bufpool.Get(n))
+
+			buf := bufpool.Get(n)
+			if buf.Len() != n {
+				panic("not reached")
+			}
+			buf.Write(make([]byte, n))
+			bufpool.Put(buf)
 		}
 	})
 }
