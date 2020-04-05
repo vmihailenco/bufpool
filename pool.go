@@ -78,11 +78,6 @@ func (p *Pool) Put(buf *Buffer) {
 	Put(buf)
 }
 
-func (p *Pool) PutBytes(buf *Buffer, data []byte) {
-	buf.buf = data
-	p.Put(buf)
-}
-
 // UpdateLen updates stats about buffer length.
 func (p *Pool) UpdateLen(bufLen int) {
 	idx := index(bufLen)

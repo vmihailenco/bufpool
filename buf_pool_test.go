@@ -27,12 +27,12 @@ func TestUseAfterPut(t *testing.T) {
 	require.Equal(t, buf.Cap(), 64)
 
 	require.Panics(t, func() {
-		buf.WriteByte(0)
+		_ = buf.WriteByte(0)
 	}, "Write")
 	require.Panics(t, func() {
-		buf.Bytes()
+		_ = buf.Bytes()
 	})
 	require.Panics(t, func() {
-		buf.String()
+		_ = buf.String()
 	})
 }

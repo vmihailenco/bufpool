@@ -14,6 +14,15 @@ func (b *Buffer) Reset() {
 	b.lastRead = opInvalid
 }
 
+func (b *Buffer) ResetBuf(buf []byte) {
+	if b.off > cap(b.buf) {
+		panic("Buffer is used after Put")
+	}
+	b.buf = buf[:0]
+	b.off = 0
+	b.lastRead = opInvalid
+}
+
 // grow grows the buffer to guarantee space for n more bytes.
 // It returns the index where bytes should be written.
 // If the buffer can't grow it will panic with ErrTooLarge.

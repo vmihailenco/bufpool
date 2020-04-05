@@ -75,7 +75,7 @@ func BenchmarkRandPool(b *testing.B) {
 			if buf.Len() != n {
 				panic("not reached")
 			}
-			buf.Write(make([]byte, n))
+			_, _ = buf.Write(make([]byte, n))
 			bufpool.Put(buf)
 		}
 	})

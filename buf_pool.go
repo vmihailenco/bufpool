@@ -22,10 +22,6 @@ func Put(buf *Buffer) {
 	thePool.Put(buf)
 }
 
-func PutBytes(buf *Buffer, data []byte) {
-	thePool.PutBytes(buf, data)
-}
-
 type bufPool struct {
 	pools [steps]sync.Pool
 }
@@ -59,11 +55,6 @@ func (p *bufPool) Put(buf *Buffer) {
 	idx := prevIndex(length)
 	lock(buf)
 	p.pools[idx].Put(buf)
-}
-
-func (p *bufPool) PutBytes(buf *Buffer, data []byte) {
-	buf.buf = data
-	p.Put(buf)
 }
 
 func lock(buf *Buffer) {
